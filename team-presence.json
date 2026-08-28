@@ -1,0 +1,56 @@
+[
+  {
+    "userId": "1541883107395899402",
+    "name": "Abhinav",
+    "status": "online",
+    "statusLabel": "Online"
+  },
+  {
+    "userId": "767693440104136714",
+    "name": "Arush Shukla",
+    "status": "dnd",
+    "statusLabel": "Do Not Disturb"
+  },
+  {
+    "userId": "1541883107395899402",
+    "name": "Ayaan",
+    "status": "online",
+    "statusLabel": "Online"
+  },
+  {
+    "userId": "1541883107395899402",
+    "name": "John Doe",
+    "status": "online",
+    "statusLabel": "Online"
+  },
+  {
+    "userId": "1541883107395899402",
+    "name": "Martin Eden",
+    "status": "online",
+    "statusLabel": "Online"
+  },
+  {
+    "userId": "1541883107395899402",
+    "name": "Boris Kitua",
+    "status": "online",
+    "statusLabel": "Online"
+  },
+  {
+    "userId": "1541883107395899402",
+    "name": "Atticus Finch",
+    "status": "online",
+    "statusLabel": "Online"
+  },
+  {
+    "userId": "1541883107395899402",
+    "name": "Alper Kamu",
+    "status": "online",
+    "statusLabel": "Online"
+  },
+  {
+    "userId": "1541883107395899402",
+    "name": "Rodrigo Monchi",
+    "status": "online",
+    "statusLabel": "Online"
+  }
+]
