@@ -15,6 +15,14 @@ const commands = [
     description: 'Show available bot commands and permissions'
   },
   {
+    name: 'ping',
+    description: 'Check the bot, API, and message latency with owner info'
+  },
+  {
+    name: 'status',
+    description: 'Check the bot, API, and message latency with owner info'
+  },
+  {
     name: 'update',
     description: 'Submit a new community update',
     options: [

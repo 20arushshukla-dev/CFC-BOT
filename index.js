@@ -18,15 +18,15 @@ let healthUpdateInFlight = false;
 const recentChatMessages = [];
 
 const TEAM_MEMBER_IDS = {
-  Abhinav: '1541883107395899402',
+  CFC_BOT: '1541883107395899402',
+  Abhinav: '934050129223249940',
   'Arush Shukla': '767693440104136714',
-  Ayaan: '1541883107395899402',
-  'John Doe': '1541883107395899402',
-  'Martin Eden': '1541883107395899402',
-  'Boris Kitua': '1541883107395899402',
-  'Atticus Finch': '1541883107395899402',
-  'Alper Kamu': '1541883107395899402',
-  'Rodrigo Monchi': '1541883107395899402'
+  Ayaan: '1497349989020602560',
+  Alexis: '796250713818792006',
+  Aadarsh: '1327266320995323936',
+  imper_monarch25: '1503787225203085312',
+  in_hell_: '806644757811560449',
+  VK: '671613376539131925'
 };
 
 const canManageBot = (member, userId) => (
@@ -40,7 +40,18 @@ const getTextChannel = async (channelId) => {
   return channel?.isTextBased() ? channel : null;
 };
 
-const discordTime = (date = new Date()) => `<t:${Math.floor(date.getTime() / 1000)}:F>`;
+const formatIstDateTime = (date = new Date()) => new Intl.DateTimeFormat('en-IN', {
+  timeZone: 'Asia/Kolkata',
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: true
+}).format(date);
+
+const discordTime = (date = new Date()) => formatIstDateTime(date);
 const probe = async (url) => {
   try {
     const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
@@ -75,7 +86,7 @@ const refreshHealthStatus = async () => {
         { name: 'API', value: apiIsUp ? '🟢 Online' : '🔴 Offline', inline: true },
         { name: 'Latest bot-driven website update', value: latestWebsiteBotUpdateAt ? discordTime(latestWebsiteBotUpdateAt) : 'No update recorded yet', inline: false }
       )
-      .setFooter({ text: `Checked ${new Date().toISOString()}` })
+      .setFooter({ text: `Checked ${formatIstDateTime()}` })
       .setTimestamp();
 
     const messages = await channel.messages.fetch({ limit: 50 });
@@ -114,18 +125,49 @@ const announceWebsiteUpdate = async (user, updateType) => {
   }
 };
 
+const getLatencyEmbed = async (message) => {
+  const apiStart = Date.now();
+  const apiHealthy = await probe(`${apiUrl}/api/health`);
+  const apiLatency = Date.now() - apiStart;
+  const messageLatency = Date.now() - message.createdTimestamp;
+  const gatewayLatency = client.ws.ping ?? 0;
+  const ownerId = process.env.OWNER_ID;
+  const ownerMention = ownerId ? `<@${ownerId}>` : 'Owner not configured';
+
+  const embed = new EmbedBuilder()
+    .setColor(apiHealthy ? 0x22c55e : 0xed4245)
+    .setTitle('⏱️ Bot latency check')
+    .setDescription(apiHealthy ? '✅ The bot and API are responding normally.' : '⚠️ The bot is online, but the API is currently unreachable.')
+    .addFields(
+      { name: '⚡ API latency', value: `${apiLatency} ms`, inline: true },
+      { name: '💬 Message latency', value: `${messageLatency} ms`, inline: true },
+      { name: '🌐 Gateway latency', value: `${gatewayLatency} ms`, inline: true },
+      { name: '📡 API status', value: apiHealthy ? '✅ Online' : '❌ Offline', inline: false }
+    )
+    .setFooter({ text: `Checked at ${new Date().toLocaleString()}` })
+    .setTimestamp();
+
+  return {
+    content: ownerMention,
+    embeds: [embed]
+  };
+};
+
 const helpEmbed = () => new EmbedBuilder()
   .setColor(0x22c55e)
-  .setTitle('Citizens Of Change Bot')
-  .setDescription('Available commands and access requirements.')
+  .setTitle('🤖 Citizens Of Change Bot')
+  .setDescription('Available commands and access requirements for both prefix and slash usage.')
   .addFields(
-    { name: 'Member stats', value: '`CCforceupdate` or `/forceupdate`\nSync online members and channel totals.' },
-    { name: 'Current event', value: '`/update current_event`\n`/update no_current_event` to clear it.' },
-    { name: 'Announcements', value: '`/update announcement`\n`/update no_announcements` to clear them.' },
-    { name: 'Help', value: '`CChelp` or `/help`' },
-    { name: 'Allowed role', value: allowedRoleId ? `<@&${allowedRoleId}> (the owner is also allowed).` : 'Any server member.' }
+    { name: '📊 Member stats', value: '`CCmembercount` / `CCmc` / `/membercount`\nShows total, human, bot, and online counts.' },
+    { name: '🔄 Force update', value: '`CCforceupdate` / `/forceupdate`\nSyncs current member and server stats immediately.' },
+    { name: '📢 Current event', value: '`CCupdate current_event <title> <progress>` / `/update current_event`\nCreates or updates the current event card.' },
+    { name: '📣 Announcements', value: '`CCupdate announcement <title> | <body> | <date> | <time> | <invite_link>` / `/update announcement`\nSubmits a new community update.' },
+    { name: '🧹 Clear entries', value: '`CCupdate no_announcements` / `CCupdate no_current_event` / `/update no_announcements` / `/update no_current_event`\nClears website announcements or current event cards.' },
+    { name: '⏱️ Ping / status', value: 'Mention the bot, or use `CCping` / `CCstatus` / `CC latency` / `/ping`\nShows API latency, message latency, and owner info.' },
+    { name: '❓ Help', value: '`CChelp` / `CC help` / `/help`\nDisplays this list of commands.' },
+    { name: '🔐 Allowed role', value: allowedRoleId ? `<@&${allowedRoleId}> (the owner is also allowed).` : 'Any server member.' }
   )
-  .setFooter({ text: 'Use slash-command options shown by Discord.' });
+  .setFooter({ text: 'Both prefix and slash commands are supported.' });
 
 const sendInteractionError = async (interaction, content) => {
   if (interaction.deferred) {
@@ -325,11 +367,159 @@ client.on('messageCreate', async (message) => {
 
   recentChatMessages.push(Date.now());
 
-  const command = message.content.trim().toLowerCase();
+  const content = message.content.trim();
+  const command = content.toLowerCase();
+
+  if (message.mentions.has(client.user)) {
+    const mentionText = content.replace(/<@!?\d+>/g, '').trim().toLowerCase();
+    if (!mentionText || mentionText === 'ping' || mentionText === 'status' || mentionText === 'latency') {
+      const ownerTag = process.env.OWNER_ID ? `<@${process.env.OWNER_ID}>` : '@Owner';
+      await message.reply({ content: ownerTag, embeds: [await getLatencyEmbed(message)] });
+      return;
+    }
+  }
 
   // Help command
   if (command === 'cchelp' || command === 'cc help') {
     await message.reply({ embeds: [helpEmbed()] });
+    return;
+  }
+
+  if (command === 'ccping' || command === 'ccstatus' || command === 'cc latency') {
+    const ownerTag = process.env.OWNER_ID ? `<@${process.env.OWNER_ID}>` : '@Owner';
+    await message.reply({ content: ownerTag, embeds: [await getLatencyEmbed(message)] });
+    return;
+  }
+
+  if (command.startsWith('ccupdate ')) {
+    const args = command.slice('ccupdate '.length).trim();
+    const parts = args.split(/\s+\|\s*|\s+/);
+
+    if (args === 'no_announcements') {
+      if (!canManageBot(message.member, message.author.id)) {
+        await message.reply('🚫 You do not have permission to clear announcements.');
+        return;
+      }
+
+      const response = await fetch(`${apiUrl}/api/clear-updates`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.API_KEY || 'change-me' },
+        body: JSON.stringify({ clearedBy: message.member?.displayName || message.author.globalName || message.author.username })
+      });
+      if (!response.ok) {
+        await message.reply('❌ Failed to clear announcements.');
+        return;
+      }
+      recordWebsiteUpdate();
+      await message.reply('✅ Announcements cleared. The website now shows no active events.');
+      return;
+    }
+
+    if (args === 'no_current_event') {
+      if (!canManageBot(message.member, message.author.id)) {
+        await message.reply('🚫 You do not have permission to clear the current event.');
+        return;
+      }
+
+      const response = await fetch(`${apiUrl}/api/clear-current-event`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.API_KEY || 'change-me' },
+        body: JSON.stringify({ clearedBy: message.member?.displayName || message.author.globalName || message.author.username })
+      });
+      if (!response.ok) {
+        await message.reply('❌ Failed to clear the current event.');
+        return;
+      }
+      recordWebsiteUpdate();
+      await message.reply('✅ Current event cleared.');
+      return;
+    }
+
+    if (args.startsWith('current_event ')) {
+      if (!canManageBot(message.member, message.author.id)) {
+        await message.reply('🚫 You do not have permission to update the current event.');
+        return;
+      }
+
+      const title = args.slice('current_event '.length).trim();
+      if (!title) {
+        await message.reply('⚠️ Use: `CCupdate current_event <title> <progress>`');
+        return;
+      }
+
+      const match = title.match(/^(.*?)(?:\s+)(\d{1,3})$/);
+      if (!match) {
+        await message.reply('⚠️ Use: `CCupdate current_event <title> <progress>`');
+        return;
+      }
+
+      const eventTitle = match[1].trim();
+      const progress = Number(match[2]);
+      if (!Number.isInteger(progress) || progress < 0 || progress > 100) {
+        await message.reply('⚠️ Progress must be a number between 0 and 100.');
+        return;
+      }
+
+      const response = await fetch(`${apiUrl}/api/current-event`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.API_KEY || 'change-me' },
+        body: JSON.stringify({ title: eventTitle, progress, updatedAt: new Date().toISOString() })
+      });
+      if (!response.ok) {
+        await message.reply('❌ Failed to update the current event.');
+        return;
+      }
+      recordWebsiteUpdate();
+      await message.reply(`✅ Current event updated: **${eventTitle}** (${progress}%).`);
+      return;
+    }
+
+    if (args.startsWith('announcement ')) {
+      if (!canManageBot(message.member, message.author.id)) {
+        await message.reply('🚫 You do not have permission to post an announcement.');
+        return;
+      }
+
+      const raw = args.slice('announcement '.length).trim();
+      const pieces = raw.split(/\s*\|\s*/);
+      if (pieces.length < 5) {
+        await message.reply('⚠️ Use: `CCupdate announcement <title> | <body> | <date> | <time> | <invite_link>`');
+        return;
+      }
+
+      const [title, body, date, time, inviteLink] = pieces;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}(\s+[A-Za-z]{2,5})?$/.test(time)) {
+        await message.reply('⚠️ Use a valid date like `YYYY-MM-DD` and a valid time like `HH:mm UTC`.');
+        return;
+      }
+
+      const payload = {
+        newEvent: '',
+        title,
+        body,
+        date,
+        time,
+        inviteLink,
+        poster: null,
+        submittedBy: message.author.tag,
+        submittedAt: new Date().toISOString()
+      };
+
+      const response = await fetch(`${apiUrl}/api/update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.API_KEY || 'change-me' },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) {
+        await message.reply('❌ Failed to submit the announcement.');
+        return;
+      }
+      recordWebsiteUpdate();
+      await message.reply(`✅ Announcement for **${title}** submitted successfully.`);
+      return;
+    }
+
+    await message.reply('⚠️ Use a valid `CCupdate` command. Try `CChelp`.');
     return;
   }
 
@@ -359,7 +549,7 @@ client.on('messageCreate', async (message) => {
       await message.reply({ embeds: [embed] });
     } catch (error) {
       console.error('Error fetching member stats:', error);
-      await message.reply('Failed to fetch member statistics. Please try again later.');
+      await message.reply('❌ Failed to fetch member statistics. Please try again later.');
     }
     return;
   }
@@ -368,15 +558,15 @@ client.on('messageCreate', async (message) => {
   if (command !== 'ccforceupdate' && command !== 'cc forceupdate') return;
 
   if (!canManageBot(message.member, message.author.id)) {
-    await message.reply('You do not have permission to force a member count update.');
+    await message.reply('🚫 You do not have permission to force a member count update.');
     return;
   }
 
   const { synced, stats } = await forceUpdate();
   const count = stats?.memberCount ?? await getGuildMemberCount();
   await message.reply(synced
-    ? `Member count updated: **${count.toLocaleString()}**`
-    : 'Could not reach the website API. The member count was not updated.');
+    ? `✅ Member count updated: **${count.toLocaleString()}**`
+    : '❌ Could not reach the website API. The member count was not updated.');
 });
 
 client.on('interactionCreate', async (interaction) => {
@@ -441,6 +631,11 @@ client.on('interactionCreate', async (interaction) => {
 
   if (interaction.commandName === 'help') {
     await interaction.reply({ embeds: [helpEmbed()], flags: MessageFlags.Ephemeral });
+    return;
+  }
+
+  if (interaction.commandName === 'ping') {
+    await interaction.reply(await getLatencyEmbed({ createdTimestamp: Date.now() }));
     return;
   }
 

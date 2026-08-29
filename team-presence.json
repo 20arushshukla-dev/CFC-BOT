@@ -1,9 +1,15 @@
 [
   {
     "userId": "1541883107395899402",
-    "name": "Abhinav",
+    "name": "CFC_BOT",
     "status": "online",
     "statusLabel": "Online"
+  },
+  {
+    "userId": "934050129223249940",
+    "name": "Abhinav",
+    "status": "offline",
+    "statusLabel": "Offline"
   },
   {
     "userId": "767693440104136714",
@@ -12,45 +18,39 @@
     "statusLabel": "Do Not Disturb"
   },
   {
-    "userId": "1541883107395899402",
+    "userId": "1497349989020602560",
     "name": "Ayaan",
-    "status": "online",
-    "statusLabel": "Online"
+    "status": "offline",
+    "statusLabel": "Offline"
   },
   {
-    "userId": "1541883107395899402",
-    "name": "John Doe",
-    "status": "online",
-    "statusLabel": "Online"
+    "userId": "796250713818792006",
+    "name": "Alexis",
+    "status": "offline",
+    "statusLabel": "Offline"
   },
   {
-    "userId": "1541883107395899402",
-    "name": "Martin Eden",
-    "status": "online",
-    "statusLabel": "Online"
+    "userId": "1327266320995323936",
+    "name": "Aadarsh",
+    "status": "offline",
+    "statusLabel": "Offline"
   },
   {
-    "userId": "1541883107395899402",
-    "name": "Boris Kitua",
-    "status": "online",
-    "statusLabel": "Online"
+    "userId": "1503787225203085312",
+    "name": "imper_monarch25",
+    "status": "offline",
+    "statusLabel": "Offline"
   },
   {
-    "userId": "1541883107395899402",
-    "name": "Atticus Finch",
-    "status": "online",
-    "statusLabel": "Online"
+    "userId": "806644757811560449",
+    "name": "in_hell_",
+    "status": "offline",
+    "statusLabel": "Offline"
   },
   {
-    "userId": "1541883107395899402",
-    "name": "Alper Kamu",
-    "status": "online",
-    "statusLabel": "Online"
-  },
-  {
-    "userId": "1541883107395899402",
-    "name": "Rodrigo Monchi",
-    "status": "online",
-    "statusLabel": "Online"
+    "userId": "671613376539131925",
+    "name": "VK",
+    "status": "dnd",
+    "statusLabel": "Do Not Disturb"
   }
 ]
